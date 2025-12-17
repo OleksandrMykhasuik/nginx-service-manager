@@ -1,3 +1,4 @@
-data/nginx
+data/nginx/conf.d/*
+!data/nginx/conf.d/.gitkeep
 .idea
 project/.idea
