@@ -1,0 +1,45 @@
+---
+- name: Create vhost
+  when: state == 'present'
+  template:
+    src: vhost.conf.j2
+    dest: "{{ nginx_conf_dir }}/{{ domain }}.conf"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Ensure vhost root directory exists
+  file:
+    path: "{{ root_path }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  become: true
+  when: state == 'present'
+
+- name: Create index.html from template
+  template:
+    src: index.html.j2
+    dest: "{{ root_path }}/index.html"
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  become: true
+  when: state == 'present'
+
+- name: Delete vhost
+  when: state == 'absent'
+  file:
+    path: "{{ nginx_conf_dir }}/{{ domain }}.conf"
+    state: absent
+
+- name: Test nginx configuration
+  command: nginx -t
+  become: true
+  ignore_errors: yes
+  changed_when: false
+
+- name: Reload nginx
+  command: nginx -s reload
+  become: true

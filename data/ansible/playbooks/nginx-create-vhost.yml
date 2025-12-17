@@ -1,0 +1,12 @@
+- hosts: nginx-managed
+  become: false
+  vars:
+    domain: "{{ vhost_domain }}"
+    root_path: "{{ root_path | default('/var/www/html') }}"
+    vhost_port: "{{ vhost_port | default(80) }}"
+    ssl: "{{ vhost_ssl | default(false) }}"
+    ssl_cert_path: "{{ vhost_ssl_cert_path | default('') }}"
+    ssl_key_path: "{{ vhost_ssl_key_path | default('') }}"
+    state: present
+  roles:
+    - nginx

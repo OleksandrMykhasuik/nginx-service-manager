@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  laravel-api:
+    build:
+      context: ./images/laravel-api
+    container_name: laravel-api
+    volumes:
+      - ./../project:/var/www/public_html
+      - laravel-ssh:/var/www/.ssh
+      - laravel-ssh-public:/data/ssh-public
+    environment:
+      PHP_IDE_CONFIG: "serverName=laravel-api"
+    ports:
+      - "80:8000"
+    networks:
+      - nginx-manager-net
+
+  ansible:
+    build:
+      context: ./images/ansible
+    container_name: ansible
+    depends_on:
+      - laravel-api
+    volumes:
+      - laravel-ssh:/data/ssh
+      - ./../data/ansible:/etc/ansible
+    networks:
+      - nginx-manager-net
+
+  nginx-managed:
+    build:
+      context: ./images/nginx-managed
+    container_name: nginx-managed
+    depends_on:
+      - laravel-api
+    volumes:
+      - ./../data/nginx/conf.d:/etc/nginx/conf.d
+      - laravel-ssh-public:/data/ssh
+    ports:
+      - "8000-8010:8000-8010"
+    networks:
+      - nginx-manager-net
+
+volumes:
+  laravel-ssh:
+    driver: local
+  laravel-ssh-public:
+    driver: local
+
+networks:
+  nginx-manager-net:
+    driver: bridge

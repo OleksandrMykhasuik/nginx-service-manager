@@ -1,0 +1,16 @@
+---
+- name: Manage Nginx in Docker
+  hosts: nginx
+  become: yes
+  vars:
+    nginx_action: "reload"   # start, stop, restart, reload
+  tasks:
+
+    - name: Run nginx command
+      ansible.builtin.shell: |
+        case "{{ nginx_action }}" in
+          start)   nginx ;;
+          stop)    nginx -s stop ;;
+          restart) nginx -s stop && nginx ;;
+          reload)  nginx -s reload ;;
+        esac

@@ -1,0 +1,17 @@
+server {
+    listen {{ vhost_port }};
+    server_name {{ domain }};
+
+    root {{ root_path }};
+    index index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    {% if ssl | bool %}
+    listen 443 ssl;
+    ssl_certificate {{ ssl_cert_path }};
+    ssl_certificate_key {{ ssl_key_path }};
+    {% endif %}
+}
