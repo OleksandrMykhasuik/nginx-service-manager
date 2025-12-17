@@ -16,11 +16,15 @@ This project provides a Laravel‑based REST API for:
 git clone git@github.com:OleksandrMykhasuik/nginx-service-manager.git
 cd nginx-service-manager
 ```
-
-### 2. Build and start Docker environment
+### 2. install composer dependencies
+```bash
+cd project
+composer install
+```
+### 3. Build and start Docker environment
 
 ```bash
-cd docker
+cd ../docker
 docker compose up -d --build
 ```
 
@@ -29,23 +33,29 @@ This starts:
 - `ansible` — container used to control Nginx
 - `nginx-managed` — Nginx instance managed by API
 
-### 3. Install PHP dependencies inside the API container
-
+### 4. Generate laravel key
 ```bash
 docker exec -it laravel-api bash
-composer install
+cp .env.example .env
+
+cat <<EOF >> .env
+ANSIBLE_HOST=ansible
+ANSIBLE_USER=ansible
+ANSIBLE_SSH_KEY=/var/www/.ssh/laravel_ansible
+ANSIBLE_PATH=/etc/ansible
+EOF
+
 php artisan key:generate
-exit
 ```
 
-### 4. Ensure SSH keys are correctly mounted
+### 5. Ensure SSH keys are correctly mounted
 
 Your Docker volumes should contain:
 
 - `laravel-ssh` — private key readable by Ansible
 - `laravel-ssh-public` — public key injected into nginx-managed
 
-### 5. Test connection from Ansible → Nginx
+### 6. Test connection from Ansible → Nginx
 
 ```bash
 docker exec -it ansible bash
